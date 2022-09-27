@@ -9,14 +9,15 @@ import SwiftUI
 
 struct TodoContentView: View {
     
-    @EnvironmentObject private var dataManager: DataManager
+    @EnvironmentObject private var dataManager: TodoDataManager
     @StateObject private var todoContentViewModel: TodoContentViewModel
     
-    init(todo: Todo?, buttonType: String, index: Int?, showingSheet: Bool) {
+    init(todo: Todo?, buttonType: String, index: Int?, showingSheet: Binding<Bool>) {
         _todoContentViewModel = StateObject(wrappedValue: TodoContentViewModel(todo: todo, buttonType: buttonType, index: index, showingSheet: showingSheet))
     }
     
     var body: some View {
+        
         NavigationView {
             RegisterElementsView(todoContentViewModel: todoContentViewModel)
                 .navigationTitle("TODO")

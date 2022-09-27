@@ -8,19 +8,28 @@
 import Foundation
 
 final class TodoDataManager: DBManagerable, ObservableObject {
- 
+    
     @Published var todoData: [Todo] = .init()
     
     func fetch() -> [Todo] {
         return todoData
     }
     
+    func fetch(by status: Status) -> [Todo] {
+        let data = self.fetch()
+        let filteredData = data.filter { $0.status == status }
+        
+        return filteredData
+    }
+    
     func add(title: String, body: String, date: Date, status: Status) {
         self.todoData.append(Todo(title: title, body: body, date: date, status: status))
+        print(todoData)
     }
     
     func delete(id: UUID) {
         self.todoData.removeAll(where: { $0.id == id })
+        print(todoData)
     }
     
     func update(id: UUID, title: String, body: String, date: Date) {
