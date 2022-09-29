@@ -55,7 +55,7 @@ struct TodoListRow: View {
                             Button {
                                 todoListRowViewModel.changeStatus(status: status, dataManager: dataManager)
                             } label: {
-                                Text("Move to \(status.text)")
+                                Text("Move to \(status.rawValue)")
                                     .frame(width: 250, height: 50)
                                     .background(Color(UIColor.systemBackground))
                             }

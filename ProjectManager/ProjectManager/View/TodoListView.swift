@@ -35,7 +35,7 @@ struct TodoListView: View {
     
     private func titleHeaderView(status: Status, taskCount: Int) -> some View {
         HStack(spacing: 10) {
-            Text(status.text)
+            Text(status.rawValue)
                 .font(.largeTitle)
             Text("\(taskCount)")
                 .font(.title3)

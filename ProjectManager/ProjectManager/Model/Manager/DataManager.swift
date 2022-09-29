@@ -10,7 +10,7 @@ import Combine
 
 final class DataManager: ObservableObject {
     
-    @Published var dbManager = TodoDataManager()
+    @Published var dbManager = TodoCoreDataManager.shared
     var cancellable: AnyCancellable?
     
     init() {
@@ -30,7 +30,7 @@ final class DataManager: ObservableObject {
     }
     
     func add(title: String, body: String, date: Date, status: Status) {
-        self.dbManager.add(title: title, body: body, date: date, status: status)
+        self.dbManager.add(model: Todo(title: title, body: body, date: date, status: status))
     }
     
     func delete(id: UUID) {

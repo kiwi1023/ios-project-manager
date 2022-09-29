@@ -9,11 +9,9 @@ import Foundation
 
 protocol DBManagerable {
     
-    var todoData: [Todo] { get }
-    
     func fetch() -> [Todo]
     func fetch(by status: Status) -> [Todo]
-    func add(title: String, body: String, date: Date, status: Status)
+    func add(model: Todo)
     func delete(id: UUID)
     func update(id: UUID, title: String, body: String, date: Date)
     func changeStatus(id: UUID, to status: Status)

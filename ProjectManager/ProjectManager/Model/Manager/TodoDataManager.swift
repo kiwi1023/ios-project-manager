@@ -22,8 +22,8 @@ final class TodoDataManager: DBManagerable, ObservableObject {
         return filteredData
     }
     
-    func add(title: String, body: String, date: Date, status: Status) {
-        self.todoData.append(Todo(title: title, body: body, date: date, status: status))
+    func add(model: Todo) {
+        self.todoData.append(model)
     }
     
     func delete(id: UUID) {
@@ -42,5 +42,4 @@ final class TodoDataManager: DBManagerable, ObservableObject {
         guard let index = todoData.firstIndex(where: { $0.id == id }) else { return }
         todoData[index].status = status
     }
-    
 }
