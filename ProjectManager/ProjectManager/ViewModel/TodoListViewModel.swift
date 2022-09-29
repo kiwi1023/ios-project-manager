@@ -26,7 +26,6 @@ final class TodoListViewModel {
         let data = dataManager.fetch(by: status)
         guard let index = indexSet.first else { return }
         
-        let id = data[index].id
-        dataManager.delete(id: id)
+        dataManager.delete(index: index)
     }
 }

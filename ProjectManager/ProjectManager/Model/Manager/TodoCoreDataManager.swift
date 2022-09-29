@@ -13,9 +13,12 @@ final class TodoCoreDataManager: DBManagerable, ObservableObject {
     static let shared = TodoCoreDataManager()
     
     let container = NSPersistentContainer(name: "TodoCoreData")
-    @Published var todoData: [Todo] = .init()
-    private var todoCoreData: [TodoCoreData] = .init()
-    
+    @Published var todoData: [TodoCoreData] = .init()
+    private let name = "TodoCoreData"
+    var context: NSManagedObjectContext {
+        return container.viewContext
+    }
+        
     private init() {
         container.loadPersistentStores { description, error in
             if let error = error {
@@ -26,38 +29,48 @@ final class TodoCoreDataManager: DBManagerable, ObservableObject {
     
     func fetch() -> [Todo] {
         let request: NSFetchRequest<TodoCoreData> = TodoCoreData.fetchRequest()
+        var todo: [Todo] = []
         
         do {
-            todoCoreData = try container.viewContext.fetch(request)
+            todoData = try container.viewContext.fetch(request)
             
-            todoCoreData.forEach {
+            todoData.forEach {
                 guard let status = Status(rawValue: $0.status) else { return }
-                todoData.append(Todo(title: $0.title, body: $0.body, date: $0.date, status: status))
+                todo.append(Todo(title: $0.title, body: $0.body, date: $0.date, status: status))
             }
         } catch {
             print(error.localizedDescription)
         }
-        return todoData
+        return todo
     }
     
     func fetch(by status: Status) -> [Todo] {
         let request: NSFetchRequest<TodoCoreData> = TodoCoreData.fetchRequest()
-        
+        var todo: [Todo] = []
         do {
-            todoCoreData = try container.viewContext.fetch(request)
+            todoData = try context.fetch(request)
             
-            todoCoreData.forEach {
+            todoData.forEach {
                 guard let status = Status(rawValue: $0.status) else { return }
-                todoData.append(Todo(title: $0.title, body: $0.body, date: $0.date, status: status))
+                todo.append(Todo(title: $0.title, body: $0.body, date: $0.date, status: status))
             }
         } catch {
             print(error.localizedDescription)
         }
-        return todoData.filter { $0.status == status }
+        return todo.filter { $0.status == status }
     }
-    
+        
+    func fetchTodoCoreData() {
+        let request: NSFetchRequest<TodoCoreData> = TodoCoreData.fetchRequest()
+        do {
+           todoData = try context.fetch(request)
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+        
     func add(model: Todo) {
-        let todoData = TodoCoreData(context: container.viewContext)
+        let todoData = TodoCoreData(context: context)
         todoData.id = model.id
         todoData.title = model.title
         todoData.body = model.body
@@ -65,43 +78,47 @@ final class TodoCoreDataManager: DBManagerable, ObservableObject {
         todoData.status = model.status.rawValue
         
         do {
-            try container.viewContext.save()
-            self.todoData = fetch()
+            try context.save()
+            fetchTodoCoreData()
         } catch {
             print(error.localizedDescription)
         }
     }
- 
-        func delete(id: UUID) {
     
-            let request: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "TodoCoreData")
-            request.predicate = NSPredicate(format: "id = %@", id as CVarArg)
-            
-            do {
-                guard let targetData = try container.viewContext.fetch(request).first as? NSManagedObject else { return }
-                
-                container.viewContext.delete(targetData)
-                try container.viewContext.save()
-                self.todoData = fetch()
-            } catch {
-                print(error.localizedDescription)
-            }
-    
-        }
-    
-    func update(id: UUID, title: String, body: String, date: Date) {
-        let request: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "TodoCoreData")
+    func delete(index: Int) {
+        
+        let request: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: self.name)
+        let id = todoData[index].id
+        
         request.predicate = NSPredicate(format: "id = %@", id as CVarArg)
         
         do {
-            if let fetchedTodoData = try container.viewContext.fetch(request).first as? TodoCoreData {
+            guard let targetData = try context.fetch(request).first as? NSManagedObject else { return }
+            
+            context.delete(targetData)
+            try context.save()
+            fetchTodoCoreData()
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+    }
+    
+    func update(title: String, body: String, date: Date, index: Int) {
+        let request: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: self.name)
+        let id = todoData[index].id
+        
+        request.predicate = NSPredicate(format: "id = %@", id as CVarArg)
+        
+        do {
+            if let fetchedTodoData = try context.fetch(request).first as? TodoCoreData {
                 fetchedTodoData.setValue(id, forKey: "id")
                 fetchedTodoData.setValue(title, forKey: "title")
                 fetchedTodoData.setValue(body, forKey: "body")
                 fetchedTodoData.setValue(date, forKey: "date")
                 
-                try container.viewContext.save()
-                self.todoData = fetch()
+                try context.save()
+                fetchTodoCoreData()
             } else {
                 add(model: Todo(title: title, body: body, date: date, status: .todo))
             }
@@ -111,15 +128,17 @@ final class TodoCoreDataManager: DBManagerable, ObservableObject {
         
     }
     
-    func changeStatus(id: UUID, to status: Status) {
-        let request: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "TodoCoreData")
+    func changeStatus(to status: Status, index: Int) {
+        let request: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: self.name)
+        let id = todoData[index].id
+        
         request.predicate = NSPredicate(format: "id = %@", id as CVarArg )
         do {
-            if let fetchedTodoData = try container.viewContext.fetch(request).first as? TodoCoreData {
-                fetchedTodoData.setValue(status, forKey: "status")
+            if let fetchedTodoData = try context.fetch(request).first as? TodoCoreData {
+                fetchedTodoData.setValue(status.rawValue, forKey: "status")
                 
-                try container.viewContext.save()
-                self.todoData = fetch()
+                try context.save()
+                fetchTodoCoreData()
             }
         } catch {
             print(error.localizedDescription)

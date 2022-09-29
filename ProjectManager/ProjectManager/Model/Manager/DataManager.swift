@@ -11,15 +11,15 @@ import Combine
 final class DataManager: ObservableObject {
     
     @Published var dbManager = TodoCoreDataManager.shared
-    var cancellable: AnyCancellable?
-    
-    init() {
-        self.cancellable = self.dbManager.$todoData.sink(
-            receiveValue: { [weak self] _ in
-                self?.objectWillChange.send()
-            }
-        )
-    }
+//    var cancellable: AnyCancellable?
+//    
+//    init() {
+//        self.cancellable = self.dbManager.$todoData.sink(
+//            receiveValue: { [weak self] _ in
+//                self?.objectWillChange.send()
+//            }
+//        )
+//    }
     
     func fetch() -> [Todo] {
         self.dbManager.fetch()
@@ -33,16 +33,16 @@ final class DataManager: ObservableObject {
         self.dbManager.add(model: Todo(title: title, body: body, date: date, status: status))
     }
     
-    func delete(id: UUID) {
-        self.dbManager.delete(id: id)
+    func delete(index: Int) {
+        self.dbManager.delete(index: index)
     }
     
-    func update(id: UUID, title: String, body: String, date: Date) {
-        self.dbManager.update(id: id, title: title, body: body, date: date)
+    func update(title: String, body: String, date: Date, index: Int) {
+        self.dbManager.update(title: title, body: body, date: date, index: index)
     }
     
-    func changeStatus(id: UUID, to status: Status) {
-        self.dbManager.changeStatus(id: id, to: status)
+    func changeStatus(to status: Status, index: Int) {
+        self.dbManager.changeStatus(to: status, index: index)
     }
     
 }

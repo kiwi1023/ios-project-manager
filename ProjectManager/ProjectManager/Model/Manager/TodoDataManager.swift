@@ -26,20 +26,21 @@ final class TodoDataManager: DBManagerable, ObservableObject {
         self.todoData.append(model)
     }
     
-    func delete(id: UUID) {
+    func delete(index: Int) {
+        let id = todoData[index].id
         self.todoData.removeAll(where: { $0.id == id })
     }
     
-    func update(id: UUID, title: String, body: String, date: Date) {
-        guard let index = todoData.firstIndex(where: { $0.id == id }) else { return }
+    func update(title: String, body: String, date: Date, index: Int) {
         
         todoData[index].title = title
         todoData[index].body = body
         todoData[index].date = date
     }
     
-    func changeStatus(id: UUID, to status: Status) {
-        guard let index = todoData.firstIndex(where: { $0.id == id }) else { return }
+    func changeStatus(to status: Status, index: Int) {
         todoData[index].status = status
     }
+    
+    func fetchTodoCoreData() { }
 }

@@ -53,7 +53,7 @@ struct TodoListRow: View {
                     ForEach(Status.allCases, id: \.self) { status in
                         if status != todoListRowViewModel.todo.status {
                             Button {
-                                todoListRowViewModel.changeStatus(status: status, dataManager: dataManager)
+                                todoListRowViewModel.changeStatus(status: status, dataManager: dataManager, index: todoListRowViewModel.index)
                             } label: {
                                 Text("Move to \(status.rawValue)")
                                     .frame(width: 250, height: 50)

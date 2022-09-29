@@ -41,9 +41,7 @@ final class TodoContentViewModel: ObservableObject {
         } else {
             guard let index = index, let todo = todo else { return }
             
-            let data = dataManager.fetch(by: todo.status)
-            let id = data[index].id
-            dataManager.update(id: id, title: title, body: body, date: date)
+            dataManager.update(title: title, body: body, date: date, index: index)
         }
         showingSheet.toggle()
     }
